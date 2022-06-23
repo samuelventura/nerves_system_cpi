@@ -41,7 +41,7 @@ defmodule Comfile.MixProject do
       {:nerves_pack, "~> 0.6.0", targets: @all_targets},
 
       # https://github.com/nerves-web-kiosk/kiosk_system_rpi3/blob/main/example/mix.exs
-      {:webengine_kiosk, "~> 0.1"},
+      # {:webengine_kiosk, "~> 0.1"},
       {:nerves_system_cpi, path: "../../", runtime: false, targets: :rpi3}
     ]
   end
