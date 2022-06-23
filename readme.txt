@@ -11,6 +11,9 @@ git clone git@github.com:nerves-project/nerves_system_rpi3.git nerves_system_cpi
 cd nerves_system_cpi
 mix deps.get
 mix nerves.system.shell
+make wpewebkit      #ensure included The following HarfBuzz libraries were not found: --  ICU (required) missing: _HarfBuzz_REQUIRED_LIBS_FOUND
+make wpelauncher    #ensure included dit not get this far
+make cog            #ensure included dit not get this far
 make
 exit
 mix nerves.artifact
