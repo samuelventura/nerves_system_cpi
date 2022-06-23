@@ -1,0 +1,5 @@
+menu "Host utilities 2"
+
+source "$NERVES_DEFCONFIG_DIR/packages/python/Config.in.host"
+
+endmenu
