@@ -9,6 +9,7 @@ asdf local elixir 1.13.4-otp-23
 #https://github.com/nerves-project/nerves_system_br/tree/567ead672954fe36bc4b8cbba02e64bfcb83ee8e
 #https://github.com/nerves-project/nerves/releases/tag/v1.6.0 -> elixir-1.7-to-1.10 otp>=21
 git checkout v1.12.2 
+$(call github,raspberrypi,linux,raspberrypi-kernel_1.20200601-1)/linux-raspberrypi-kernel_1.20200601-1.tar.gz
 
 rm -fr _build deps .nerves #critical if newer previous builds present in .nerves
 mix deps.get
