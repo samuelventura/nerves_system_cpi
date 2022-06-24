@@ -5,6 +5,9 @@ asdf local erlang 23.3.4.15
 asdf local elixir 1.13.4-otp-23
 #https://github.com/nerves-project/nerves_system_rpi3/releases/tag/v1.12.2
 #https://github.com/nerves-project/nerves_system_rpi3/tree/a2a7e83ceeef3ffc44d06d51ff70072003778bef
+#depends on 
+#nerves_system_br 1.12.4
+#nerves_toolchain_arm_unknown_linux_gnueabihf 1.3.0
 #https://github.com/nerves-project/nerves_system_br/releases/tag/v1.12.4
 #https://github.com/nerves-project/nerves_system_br/tree/567ead672954fe36bc4b8cbba02e64bfcb83ee8e
 #https://github.com/nerves-project/nerves/releases/tag/v1.6.0 -> elixir-1.7-to-1.10 otp>=21
@@ -32,6 +35,8 @@ MIX_TARGET=rpi3 mix firmware.gen.script
 - boots ok: screen evidently smaller, dmesg and raspberries splash shown over iex
 - mdns_lite not started shown once
 - ssh 10.77.3.150 works (shows 22s uptime)
+- Nerves.Runtime.reboot works
+- Nerves.Runtime.halt works
 - reboot works on first boot
 - neither comfile.local nor comfile-ee0c.local ping back
 - MIX_TARGET=rpi3 mix upload 10.77.3.150 stalls
@@ -39,11 +44,14 @@ MIX_TARGET=rpi3 mix firmware.gen.script
 
 NEXT STEPS
 
-- merge boot/*.txt official files
-- enable fwup autodetection
+- confirm upload work consistently on bbb -> YES
+- merge boot/*.txt official files -> Normal size screen
+- backport fwup from bbb
+- enable fwup autodetection/umount
 - add wx to erlang package
 - enable icu and test dotnet
-- replicate by downgrading lastest nerves to kernel 4
+- remove berries splash and dmesg log
+- replicate by downgrading latest nerves to kernel 4
 
 #https://github.com/erlang/otp/releases/tag/OTP-23.0.3
 #https://github.com/erlang/otp/tree/44b6531bc575bac4eccab7eea2b27167f0d324aa
@@ -88,6 +96,7 @@ fwup: Upgrading partition B
 
 #https://github.com/fwup-home/fwup
 #https://github.com/nerves-project/nerves_system_rpi3/blob/main/fwup.conf
+#https://github.com/fwup-home/fwup/issues/50 mentions SD size, block size, umount issues
 #FWUP_MINIMAL removes autodetection
 #HAS_UMOUNT required to support unmount
 (cd ./_build/rpi3_dev/nerves/images/ && sftp 10.77.3.150)
@@ -113,3 +122,51 @@ fwup: Upgrading partition B
 iex(1)> cmd 'fwup -a -U -i /tmp/tryout.fw -d /dev/mmcblk0 -t upgrade'
 fwup: Upgrading partition B
  22% [=======                             ] 3.90 MB in / 5.55 MB out   
+
+#after booting with config.merged.txt
+fwup: Upgrading partition B
+ 92% [=================================   ] 21.12 MB in / 23.15 MB out   
+
+athasha bbb mix upload works!
+bbb depends on 
+https://github.com/samuelventura/nerves_system_bbb_icu
+nerves_system_br 1.19.0
+nerves_toolchain_armv7_nerves_linux_gnueabihf 1.5.0
+https://github.com/nerves-project/nerves_system_bbb/releases/tag/v2.14.0
+https://github.com/nerves-project/nerves_system_bbb/tree/c2922e5dafcc62c204bf1dcb4cbeebeb1fb10c46
+Buildroot 2022.02.1 and OTP 25.0 
+http://buildroot.org/downloads/buildroot-2022.02.1.tar.gz
+FWUP_VERSION = 1.9.0
+dumps libsodium
+
+#https://github.com/nerves-project/nerves_system_rpi3/releases/tag/v1.12.2
+#https://github.com/nerves-project/nerves_system_rpi3/tree/a2a7e83ceeef3ffc44d06d51ff70072003778bef
+#depends on 
+#nerves_system_br 1.12.4
+#nerves_toolchain_arm_unknown_linux_gnueabihf 1.3.0
+Buildroot 2020.05.1 and OTP 23.0.3 
+http://buildroot.org/downloads/buildroot-2020.05.1.tar.gz
+FWUP_VERSION = 1.2.5
+depends on libsodium
+
+#second artifact build to force fwup19
+#after setting up fwup19
+mix nerves.system.shell
+make fwup19
+make
+exit
+mix nerves.artifact
+#got same hash nerves_system_cpi-portable-1.12.2-E9CC34C.tar.gz
+mv *.tar.gz ~/.nerves/artifacts/
+
+cd tryout
+MIX_TARGET=rpi3 mix firmware
+MIX_TARGET=rpi3 mix burn
+#from target iex (shows 1.8.0 before force fwup update!!!)
+cmd "fwup --version"
+1.9.0
+
+#dmesg style errors: busy irq mmc0
+#ssh connection refussed
+#ip is configured but lots of error in RingLogger.tail
+
