@@ -1,0 +1,46 @@
+# Default Nerves RPi 3 config.txt
+#
+# It's possible to override this file by using a custom fwup.conf
+# configuration to pull in a replacement.
+#
+# Useful links:
+# https://www.raspberrypi.org/documentation/configuration/config-txt/README.md
+# https://www.raspberrypi.org/documentation/configuration/device-tree.md
+# https://github.com/raspberrypi/documentation/blob/master/configuration/device-tree.md
+# https://github.com/raspberrypi/firmware/blob/master/boot/overlays/README
+
+kernel=zImage
+
+# LCD display settings
+hdmi_force_hotplug=1
+hdmi_group=2
+hdmi_mode=87
+hdmi_cvt 800 480 60 6 0 0 0
+
+# Enable the I2C port
+dtparam=i2c_arm=on
+
+# RTC
+dtoverlay=i2c-rtc,ds3231
+
+# Enable the two serial ports
+dtparam=uart0=on
+enable_uart=1
+dtoverlay=uart1,txd1_pin=32,rxd1_pin=33
+
+# Audio
+dtoverlay=pwm-2chan,pin=40,func=4,pin2=41,func2=4
+dtparam=audio=on
+
+# Remove the rainbow pattern when booting
+disable_splash=1
+
+# Removes the warnings overlay
+avoid_warnings=1
+
+# GPIO37,38,39 : ESD level shifter chip enable
+gpio=37-39=op,np,dh
+
+# Enable DRM VC4 V3D driver
+dtoverlay=vc4-kms-v3d
+max_framebuffers=2

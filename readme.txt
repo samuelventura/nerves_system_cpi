@@ -24,6 +24,7 @@ mix compile
 #mix nerves.system.shell
 mix nerves.artifact
 #nerves_system_cpi-portable-1.12.2-0F5D88C.tar.gz
+#nerves_system_cpi-portable-1.12.2-866187A.tar.gz
 mv *.tar.gz ~/.nerves/artifacts/
 
 mix nerves.new tryout
@@ -31,7 +32,7 @@ cd tryout
 #nerves -> comfile in config/target.exs
 #set system path reference to ../
 #downgrade to nerves 1.6.0
-rm -fr _build deps .nerves
+rm -fr _build deps .nerves mix.lock
 mix archive.install hex nerves_bootstrap
 MIX_TARGET=rpi3 mix deps.get
 MIX_TARGET=rpi3 mix firmware
@@ -46,8 +47,16 @@ MIX_TARGET=rpi3 mix firmware.gen.script
 - MIX_TARGET=rpi3 mix upload 10.77.3.150 stalls
 - MIX_TARGET=rpi3 ./upload.sh 10.77.3.150 stalls
 
+- bumping nerves with override wont mount /root (/data)
 - to merge config.txt keep kernel=zImage
 - comfile cmdline.txt kernel panics bcm2835
+- /data wont mount without CF config.txt
+- :nerves_ssh wont start without rw /data
+- eth0 slow detection
+- delayed mounting of /root (just before eth0 detection)
+- using rootfs_overlay/boot wont work
+- putting config.txt in ../ wont mount /root (/data)
+- config.txt must be replaced after image creation
 
 Nerves.Runtime.reboot
 Nerves.Runtime.halt
@@ -56,7 +65,7 @@ RingLogger.tail
 
 NEXT STEPS
 
-- use elxir 1.7.3 or 1.8 required by nerves 1.6.3
+- use elixir 1.7.3 or 1.8 required by nerves 1.6.3
 - merge boot/*.txt official files
 - solve mdns_lite startup
 - enable fwup autodetection/umount
@@ -138,6 +147,26 @@ fwup: Upgrading partition B
 iex(1)> cmd 'fwup -a -U -i /tmp/tryout.fw -d /dev/mmcblk0 -t upgrade'
 fwup: Upgrading partition B
  22% [=======                             ] 3.90 MB in / 5.55 MB out   
+
+[   35.358263] EXT4-fs (mmcblk0p3): mounted filesystem with ordered data mode. Opts: (null)
+[   36.261422] smsc95xx 1-1.1:1.0 eth0: hardware isn't capable of remote wakeup
+[   37.888751] smsc95xx 1-1.1:1.0 eth0: link up, 100Mbps, full-duplex, lpa 0xC1E1
+
+
+iex(1)> cmd "mount"
+/dev/root on / type squashfs (ro,relatime)
+devtmpfs on /dev type devtmpfs (rw,relatime,size=471528k,nr_inodes=117882,mode=755)
+proc on /proc type proc (rw,nosuid,nodev,noexec,relatime)
+sysfs on /sys type sysfs (rw,nosuid,nodev,noexec,relatime)
+devpts on /dev/pts type devpts (rw,nosuid,noexec,relatime,gid=5,mode=620,ptmxmode=000)
+tmpfs on /tmp type tmpfs (rw,nosuid,nodev,noexec,relatime,size=95228k)
+tmpfs on /run type tmpfs (rw,nosuid,nodev,noexec,relatime,size=47616k,mode=755)
+/dev/mmcblk0p1 on /boot type vfat (ro,nosuid,nodev,noexec,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,errors=remount-ro)
+pstore on /sys/fs/pstore type pstore (rw,nosuid,nodev,noexec,relatime)
+tmpfs on /sys/fs/cgroup type tmpfs (rw,nosuid,nodev,noexec,relatime,size=1024k,mode=755)
+cpu on /sys/fs/cgroup/cpu type cgroup (rw,nosuid,nodev,noexec,relatime,cpu)
+memory on /sys/fs/cgroup/memory type cgroup (rw,nosuid,nodev,noexec,relatime,memory)
+/dev/mmcblk0p3 on /root type ext4 (rw,relatime)  ### THIS IS /data
 
 iex(4)> Application.loaded_applications
 [
