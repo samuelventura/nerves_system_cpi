@@ -1,3 +1,15 @@
+IMPORTANT: Still no clear pattern to get this right the first time.
+
+- It looks like /root (/data) is not mounted until partition is fully formatted 
+    which takes a variable delay on first or second boot.
+    dmesg appears as: ext4-fs (mmcblk0p3): mounted filesystem with ordered data mode.
+    took ~34s on first boot twice (no boot files yet)
+    second boot ~6s without merged boot files yet!
+    third/forth boot slow +60-100s nic detection and not /data mount hence no ssh
+    fifth/sixth/... boot (with merged data) formated partition 3 again but no ssh!
+- nerves ssh service depends on /data, so remote login no possible until partition mounted
+- this is regardless of the cmdline and config being present or not
+
 #last release with kernel 4
 #bcm2710-rpi-cm3 included
 #OTP 23, Elixir 1.6
