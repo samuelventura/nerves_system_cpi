@@ -46,6 +46,7 @@ MIX_TARGET=rpi3 mix firmware.gen.script
 - neither comfile.local nor comfile-ee0c.local ping back
 - MIX_TARGET=rpi3 mix upload 10.77.3.150 stalls
 - MIX_TARGET=rpi3 ./upload.sh 10.77.3.150 stalls
+- passing smsc95xx.macaddr=B8:27:EB:CF:EE:0C brings boot down to 7s!
 
 - bumping nerves with override wont mount /root (/data)
 - to merge config.txt keep kernel=zImage
